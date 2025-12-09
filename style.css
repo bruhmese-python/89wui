@@ -977,6 +977,7 @@ body.fade-out {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
+    padding: 12px; /* added padding around buttons */
 }
 
 .btn-primary,

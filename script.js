@@ -40,7 +40,7 @@ const teamsAvatarColors = [
 let usersInMeeting = [];
 let me = "";
 let usersList = [
-  "Joel Eldo",
+  "John Doe",
   "Lavanya Kalam",
   "Kite Conrad",
   "Santhosh kumar",
@@ -319,7 +319,7 @@ function deleteRandomUser() {
   user_elements.splice(index, 1);
 }
 
-// console.log('Deleting randome user');
+// console.log('Deleting random user');
 // deleteRandomUser()
 
 function applyUserBackgroundStyle(username, chatUserDiv) {
@@ -492,11 +492,11 @@ function updateMemberNos() {
   document.getElementById('members-number').innerHTML = usersInMeeting.length.toString();
 }
 
-let me_isMuted = false;
+// let me_isMuted = false;
+// (un)mute control button
 function toggleMeMute() {
   unmuted_mic = document.getElementById('unmuted-mic');
   muted_mic = document.getElementById('muted-mic');
-
 
   if (unmuted_mic.style.display == 'initial') {
     muted_mic.style.display = 'initial';
@@ -508,33 +508,41 @@ function toggleMeMute() {
     // me_isMuted=false;
   }
 
-  toggleSpeak(me_element);
+  toggleSpeak(me_element,true);
 
 }
-function toggleSpeak(element) {
+function toggleSpeak(element, isMe=false) {
   const borderElement = getBorderElement(element);
   const micSpan = getMicSpan(element);
+
+  // Toggle mute icon for self without affecting border animation
+  if (isMe) {
+    if (micSpan) {
+      micSpan.classList.toggle('hide');
+    }
+    borderElement.classList.toggle('hide');
+    return;
+  }
 
   if (borderElement) {
     if (borderElement.classList.contains('fade-in')) {
       // Stop speaking
       borderElement.classList.remove('fade-in');
       borderElement.classList.add('fade-out');
-      
+
       // Random chance to show mute icon when stopping speaking
       if (micSpan) {
         if (Math.random() < 0.3) {
-           micSpan.classList.remove('hide');
+          micSpan.classList.remove('hide');
         } else {
-           micSpan.classList.add('hide');
+          micSpan.classList.add('hide');
         }
       }
-
     } else {
       // Start speaking
       borderElement.classList.remove('fade-out');
       borderElement.classList.add('fade-in');
-      
+
       // Always hide mute icon when speaking
       if (micSpan) {
         micSpan.classList.add('hide');
@@ -692,9 +700,12 @@ function startMeeting() {
   me_element = user_elements[0];
   usersList = usersList.slice(1, usersList.length - 1);
   setTimeout(addRandomUser, 500);
+
+  // initial mute self
+  toggleMeMute();
+  
   meetingLoop();
   startTimer();
-  toggleMeMute();
 }
 
 // Onboarding Modal Functions
