@@ -19,7 +19,7 @@ function startTimer() {
 }
 
 // Start the timer when the page loads
-window.onload = startTimer;
+// window.onload = startTimer;
 
 // Teams avatar colors with their text colors
 const teamsAvatarColors = [
