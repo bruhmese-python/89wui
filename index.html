@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="style.css">
+    <title>Meeting</title>
+    <link rel="icon" type="image/x-icon" href="icon.ico">
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+    <!-- Onboarding Modal -->
+    <div class="modal-overlay" id="onboarding-modal">
+        <div class="modal-container">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <img src="icon.ico" width="40" alt="Teams icon">
+                    <h1>Join Meeting</h1>
+                    <p class="modal-subtitle">Enter your name to join the meeting</p>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <label for="username-input">Display Name</label>
+                        <input type="text" id="username-input" class="username-input" placeholder="Enter your name" maxlength="50" autocomplete="name">
+                        <span class="input-hint">This is how others will see you in the meeting</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="skipUsername()">Skip for now</button>
+                    <button class="btn-primary" id="join-btn" onclick="joinMeeting()">Join Meeting</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- layout modal -->
+    <div class="modal-overlay" id="layout-modal" style="display: none;">
+        <div class="modal-container" style="max-width: 450px;">
+            <div class="modal-content">
+                <div class="modal-header" style="text-align: left; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                    <h1 style="font-size: 20px; margin: 0;">Change view</h1>
+                    <span class="close-modal-btn" onclick="closeLayoutModal()" style="cursor: pointer; font-size: 24px; color: #616161;">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="layout-options-grid">
+                        <div class="layout-option-tile" id="option-grid" onclick="selectLayoutOption('grid')">
+                            <div class="tile-icon"><i data-feather="grid"></i></div>
+                            <div class="tile-label">Grid</div>
+                        </div>
+                        <div class="layout-option-tile" id="option-horizontal" onclick="selectLayoutOption('horizontal')">
+                            <div class="tile-icon"><i data-feather="columns"></i></div>
+                            <div class="tile-label">Horizontal</div>
+                        </div>
+                        <div class="layout-option-tile" id="option-vertical" onclick="selectLayoutOption('vertical')">
+                            <div class="tile-icon"><i data-feather="list"></i></div>
+                            <div class="tile-label">Vertical</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-primary" onclick="confirmLayout()">Okay</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="floating-profile" id="floating-profile"></div>
+
+    <!-- emoji overlay -->
+    <div class="emoji-rack select-none" id="emoji-rack">
+        <div class="emoji-btn" onclick="react(event)">👍</div>
+        <div class="emoji-btn" onclick="react(event)">💓</div>
+        <div class="emoji-btn" onclick="react(event)">😆</div>
+        <div class="emoji-btn" onclick="react(event)">😮</div>
+        <div class="emoji-btn">...</div>
+    </div>
+
+    <div class="modal-overlay" id="video-modal" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <img src="icon.ico" width="40" alt="Teams icon">
+                    <h1>Share Video</h1>
+                </div>
+                <div class="modal-body">
+                    <p style="text-align: center; color: #616161; font-size: 16px;">Video sharing is disabled by the
+                        administrator for this meeting.</p>
+                </div>
+                <div class="modal-footer" style="justify-content: center;">
+                    <button class="btn-primary" onclick="closeVideoModal()">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="share-modal" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <img src="icon.ico" width="40" alt="Teams icon">
+                    <h1>Share Screen</h1>
+                </div>
+                <div class="modal-body">
+                    <p style="text-align: center; color: #616161; font-size: 16px;">Screen sharing is disabled by the
+                        administrator for this meeting.</p>
+                </div>
+                <div class="modal-footer" style="justify-content: center;">
+                    <button class="btn-primary" onclick="closeShareModal()">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ui-container-parent">
+        <div class="ui-container">
+            <div class="headers-space select-none">
+                <div class="header-regions">
+                    <div class="timer">
+                        <table>
+                            <tr>
+                                <td>
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
+                                        </g>
+                                        <g id="SVGRepo_iconCarrier">
+                                            <path
+                                                d="M20 6C20 6 19.1843 6 19.0001 6C16.2681 6 13.8871 4.93485 11.9999 3C10.1128 4.93478 7.73199 6 5.00009 6C4.81589 6 4.00009 6 4.00009 6C4.00009 6 4 8 4 9.16611C4 14.8596 7.3994 19.6436 12 21C16.6006 19.6436 20 14.8596 20 9.16611C20 8 20 6 20 6Z"
+                                                stroke="#bfbfbf" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round"></path>
+                                        </g>
+                                    </svg>
+                                </td>
+                                <td>
+                                    <img title="This meeting is being recorded" class="record-icon" width="30"
+                                        src="record.jpg" alt="" srcset="">
+                                </td>
+                                <td>
+                                    <div id="timer">00:00</div>
+                                </td>
+                                <td class="meeting-title" oninput="updateWindowTitle()" id="meeting-title"
+                                    contenteditable spellcheck="false">
+                                    Daily Updates
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="controls-flex-container">
+
+                        <div class="btn-container">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                    <path d="M8 10.5H16" stroke="#000000" stroke-width="1.5" stroke-linecap="round">
+                                    </path>
+                                    <path d="M8 14H13.5" stroke="#000000" stroke-width="1.5" stroke-linecap="round">
+                                    </path>
+                                    <path
+                                        d="M17 3.33782C15.5291 2.48697 13.8214 2 12 2C6.47715 2 2 6.47715 2 12C2 13.5997 2.37562 15.1116 3.04346 16.4525C3.22094 16.8088 3.28001 17.2161 3.17712 17.6006L2.58151 19.8267C2.32295 20.793 3.20701 21.677 4.17335 21.4185L6.39939 20.8229C6.78393 20.72 7.19121 20.7791 7.54753 20.9565C8.88837 21.6244 10.4003 22 12 22C17.5228 22 22 17.5228 22 12C22 10.1786 21.513 8.47087 20.6622 7"
+                                        stroke="#000000" stroke-width="1.5" stroke-linecap="round"></path>
+                                </g>
+                            </svg>
+                            Chat
+                            <div id="newMsgNotifAlert" class="new-msg-notification-alert">
+                            </div>
+                        </div>
+                        <div class="btn-container">
+                            <div class="members-number" id="members-number"></div>
+                            <svg width="20" height="20" fill="black" viewBox="-3 0 19 19"
+                                xmlns="http://www.w3.org/2000/svg" class="cf-icon-svg">
+                                <g id="SVGRepo_#bfbfbfgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                    <path
+                                        d="M12.517 12.834v1.9a1.27 1.27 0 0 1-1.267 1.267h-9.5a1.27 1.27 0 0 1-1.267-1.267v-1.9A3.176 3.176 0 0 1 3.65 9.667h5.7a3.176 3.176 0 0 1 3.167 3.167zM3.264 5.48A3.236 3.236 0 1 1 6.5 8.717a3.236 3.236 0 0 1-3.236-3.236z">
+                                    </path>
+                                </g>
+                            </svg>
+                            People
+                        </div>
+                        <div class="btn-container" id="raise-btn" onclick="">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                    <path
+                                        d="M17 11V9.27308C17 8.75533 17.2588 8.27183 17.6896 7.98463L17.7388 7.95181C18.2041 7.64162 18.806 7.62565 19.287 7.91073V7.91073C19.729 8.17263 20 8.64824 20 9.16196L20 13C20 14.6997 19.4699 16.2756 18.5661 17.5714C17.1204 19.6439 14.7186 21 12 21C9.28145 21 6.8796 19.6439 5.43394 17.5714C4.53009 16.2756 4.00001 14.6997 4.00001 13L4.00001 12.2117C4 11.438 4.44632 10.7336 5.14599 10.4032V10.4032C5.6867 10.1479 6.3133 10.1479 6.85401 10.4032V10.4032C7.55368 10.7336 8 11.438 8.00001 12.2117L8.00001 13"
+                                        stroke="#000000" stroke-width="2" stroke-linecap="round"></path>
+                                    <path
+                                        d="M8 12V5.80278C8 5.30125 8.25065 4.8329 8.66795 4.5547V4.5547C9.1718 4.2188 9.8282 4.2188 10.3321 4.5547V4.5547C10.7493 4.8329 11 5.30125 11 5.80278V11"
+                                        stroke="#000000" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                    </path>
+                                    <path
+                                        d="M14 11V5.80278C14 5.30125 14.2507 4.8329 14.6679 4.5547V4.5547C15.1718 4.2188 15.8282 4.2188 16.3321 4.5547V4.5547C16.7493 4.8329 17 5.30125 17 5.80278V9"
+                                        stroke="#000000" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                    </path>
+                                    <path
+                                        d="M11 6V4.80278C11 4.30125 11.2507 3.8329 11.6679 3.5547V3.5547C12.1718 3.2188 12.8282 3.2188 13.3321 3.5547V3.5547C13.7493 3.8329 14 4.30125 14 4.80278V6"
+                                        stroke="#000000" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                    </path>
+                                </g>
+                            </svg>
+                            Raise
+                        </div>
+                        <div class="btn-container">
+                            <svg width="20" height="20" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
+                                xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 363.025 363.024"
+                                xml:space="preserve" fill="#000000">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                    <g>
+                                        <g>
+                                            <path style="fill:#bfbfbf;"
+                                                d="M181.512,363.024C81.422,363.024,0,281.601,0,181.513C0,81.424,81.422,0,181.512,0 c100.089,0,181.513,81.424,181.513,181.513C363.025,281.601,281.601,363.024,181.512,363.024z M181.512,11.71 C87.886,11.71,11.71,87.889,11.71,181.513c0,93.627,76.176,169.802,169.802,169.802c93.627,0,169.803-76.175,169.803-169.802 C351.315,87.889,275.139,11.71,181.512,11.71z">
+                                            </path>
+                                        </g>
+                                        <g>
+                                            <path style="fill:#bfbfbf;"
+                                                d="M181.512,306.423c-68.876,0-124.91-56.031-124.91-124.91h11.71 c0,62.418,50.782,113.199,113.199,113.199c62.424,0,113.206-50.781,113.206-113.199h11.71 C306.428,250.392,250.392,306.423,181.512,306.423z">
+                                            </path>
+                                        </g>
+                                        <g>
+                                            <g>
+                                                <path style="fill:#bfbfbf;"
+                                                    d="M119.061,160.041c-13.995,0-25.376-11.376-25.376-25.371c0-13.992,11.382-25.376,25.376-25.376 s25.371,11.385,25.371,25.376C144.431,148.665,133.055,160.041,119.061,160.041z M119.061,121.004 c-7.537,0-13.666,6.132-13.666,13.666c0,7.531,6.129,13.661,13.666,13.661c7.531,0,13.66-6.13,13.66-13.661 C132.721,127.137,126.591,121.004,119.061,121.004z">
+                                                </path>
+                                            </g>
+                                            <g>
+                                                <path style="fill:#bfbfbf;"
+                                                    d="M243.97,160.041c-13.991,0-25.37-11.376-25.37-25.371c0-13.992,11.379-25.376,25.37-25.376 c13.992,0,25.371,11.385,25.371,25.376C269.341,148.665,257.962,160.041,243.97,160.041z M243.97,121.004 c-7.53,0-13.66,6.132-13.66,13.666c0,7.531,6.13,13.661,13.66,13.661c7.531,0,13.661-6.13,13.661-13.661 C257.631,127.137,251.501,121.004,243.97,121.004z">
+                                                </path>
+                                            </g>
+                                        </g>
+                                    </g>
+                                </g>
+                            </svg>
+                            React
+                        </div>
+                        <div class="btn-container" onclick="openLayoutModal()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <path
+                                    d="M3 8.976C3 4.05476 4.05476 3 8.976 3H15.024C19.9452 3 21 4.05476 21 8.976V15.024C21 19.9452 19.9452 21 15.024 21H8.976C4.05476 21 3 19.9452 3 15.024V8.976Z"
+                                    stroke="currentColor" stroke-width="2" />
+                                <path d="M12 3V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                <path d="M21 12L3 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                            View
+                        </div>
+
+                        <div class="btn-container">
+                            <svg width="20" height="20" viewBox="0 0 24.00 24.00" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" stroke="#000000"
+                                stroke-width="0.00024000000000000003">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                    <path
+                                        d="M12 6C12.5523 6 13 6.44772 13 7V11H17C17.5523 11 18 11.4477 18 12C18 12.5523 17.5523 13 17 13H13V17C13 17.5523 12.5523 18 12 18C11.4477 18 11 17.5523 11 17V13H7C6.44772 13 6 12.5523 6 12C6 11.4477 6.44772 11 7 11H11V7C11 6.44772 11.4477 6 12 6Z"
+                                        fill="#bfbfbf"></path>
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M2 4.5C2 3.11929 3.11929 2 4.5 2H19.5C20.8807 2 22 3.11929 22 4.5V19.5C22 20.8807 20.8807 22 19.5 22H4.5C3.11929 22 2 20.8807 2 19.5V4.5ZM4.5 4C4.22386 4 4 4.22386 4 4.5V19.5C4 19.7761 4.22386 20 4.5 20H19.5C19.7761 20 20 19.7761 20 19.5V4.5C20 4.22386 19.7761 4 19.5 4H4.5Z"
+                                        fill="#bfbfbf"></path>
+                                </g>
+                            </svg>
+                            Apps
+                        </div>
+                        <div class="btn-container">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                    <circle cx="18" cy="12" r="1.5" transform="rotate(90 18 12)" fill="#000000">
+                                    </circle>
+                                    <circle cx="12" cy="12" r="1.5" transform="rotate(90 12 12)" fill="#000000">
+                                    </circle>
+                                    <circle cx="6" cy="12" r="1.5" transform="rotate(90 6 12)" fill="#000000">
+                                    </circle>
+                                </g>
+                            </svg>
+                            More
+                        </div>
+
+                        <div class="separator">&nbsp;</div>
+
+                        <div class="btn-container" id="camera-btn" onclick="openVideoModal()">
+                            <img width="20" src="camera.png" alt="" srcset="">
+                            Camera
+                        </div>
+
+                        <div class="btn-container" id="mic-btn">
+                            <svg id="unmuted-mic" style="display: initial;" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                    <path
+                                        d="M8 5C8 2.79086 9.79086 1 12 1C14.2091 1 16 2.79086 16 5V12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12V5Z"
+                                        fill="#000000"></path>
+                                    <path
+                                        d="M6.25 11.8438V12C6.25 13.525 6.8558 14.9875 7.93414 16.0659C9.01247 17.1442 10.475 17.75 12 17.75C13.525 17.75 14.9875 17.1442 16.0659 16.0659C17.1442 14.9875 17.75 13.525 17.75 12V11.8438C17.75 11.2915 18.1977 10.8438 18.75 10.8438H19.25C19.8023 10.8438 20.25 11.2915 20.25 11.8437V12C20.25 14.188 19.3808 16.2865 17.8336 17.8336C16.5842 19.0831 14.9753 19.8903 13.25 20.1548V22C13.25 22.5523 12.8023 23 12.25 23H11.75C11.1977 23 10.75 22.5523 10.75 22V20.1548C9.02471 19.8903 7.41579 19.0831 6.16637 17.8336C4.61919 16.2865 3.75 14.188 3.75 12V11.8438C3.75 11.2915 4.19772 10.8438 4.75 10.8438H5.25C5.80228 10.8438 6.25 11.2915 6.25 11.8438Z"
+                                        fill="#000000"></path>
+                                </g>
+                            </svg>
+                            <svg id="muted-mic" style="display: none;" width="20" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                    <path
+                                        d="M12 1C13.6452 1 15.0585 1.99333 15.6728 3.41298L7.99997 11.0858V5C7.99997 2.79086 9.79083 1 12 1Z"
+                                        fill="#000000"></path>
+                                    <path
+                                        d="M6.24997 12C6.24997 12.2632 6.26801 12.5245 6.30342 12.7823L4.25194 14.8338C3.92295 13.9344 3.74997 12.9761 3.74997 12V11.8438C3.74997 11.2915 4.19769 10.8438 4.74997 10.8438H5.24997C5.80226 10.8438 6.24997 11.2915 6.24997 11.8438V12Z"
+                                        fill="#000000"></path>
+                                    <path
+                                        d="M7.3242 18.7971L3.76773 22.3535C3.3772 22.7441 2.74404 22.7441 2.35352 22.3535L1.64641 21.6464C1.25588 21.2559 1.25588 20.6227 1.64641 20.2322L20.2322 1.64644C20.6227 1.25591 21.2559 1.25591 21.6464 1.64644L22.3535 2.35354C22.744 2.74407 22.744 3.37723 22.3535 3.76776L16 10.1213V12C16 14.2091 14.2091 16 12 16C11.4457 16 10.9177 15.8873 10.4378 15.6835L9.13553 16.9857C9.99969 17.4822 10.986 17.75 12 17.75C13.525 17.75 14.9875 17.1442 16.0658 16.0659C17.1442 14.9875 17.75 13.525 17.75 12V11.8438C17.75 11.2915 18.1977 10.8438 18.75 10.8438H19.25C19.8023 10.8438 20.25 11.2915 20.25 11.8437V12C20.25 14.188 19.3808 16.2865 17.8336 17.8336C16.5842 19.0831 14.9753 19.8903 13.25 20.1548V23H10.75V20.1548C9.51944 19.9662 8.34812 19.5014 7.3242 18.7971Z"
+                                        fill="#000000"></path>
+                                </g>
+                            </svg>
+                            Mic
+                        </div>
+                        <div class="btn-container" onclick="openShareModal()">
+                            <svg width="20" height="20" viewBox="0 0 28 28" version="1.1"
+                                xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                fill="#000000">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                    <!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+                                    <title>ic_fluent_share_screen_28_filled</title>
+                                    <desc>Created with Sketch.</desc>
+                                    <g id="🔍-System-Icons" stroke="none" stroke-width="1" fill="none"
+                                        fill-rule="evenodd">
+                                        <g id="ic_fluent_share_screen_28_filled" fill="#000000" fill-rule="nonzero">
+                                            <path
+                                                d="M23.75,4.99939 C24.9926,4.99939 26,6.00675 26,7.24939 L26,7.24939 L26,20.75 C26,21.9926 24.9926,23 23.75,23 L23.75,23 L4.25,23 C3.00736,23 2,21.9926 2,20.75 L2,20.75 L2,7.24939 C2,6.00675 3.00736,4.99939 4.25,4.99939 L4.25,4.99939 Z M13.9975,8.62108995 C13.7985,8.62108995 13.6077,8.70032 13.467,8.84113 L10.217,12.0956 C9.92435,12.3887 9.92468,12.8636 10.2178,13.1563 C10.5109,13.449 10.9858,13.4487 11.2784,13.1556 L13.2477,11.1835 L13.2477,18.6285 C13.2477,19.0427 13.5835,19.3785 13.9977,19.3785 C14.4119,19.3785 14.7477,19.0427 14.7477,18.6285 L14.7477,11.1818 L16.7219,13.1559 C17.0148,13.4488 17.4897,13.4488 17.7826,13.1559 C18.0755,12.863 18.0755,12.3882 17.7826,12.0953 L14.5281,8.84076 C14.3873,8.70005 14.1965,8.62108995 13.9975,8.62108995 Z"
+                                                id="🎨-Color"> </path>
+                                        </g>
+                                    </g>
+                                </g>
+                            </svg>
+                            Share
+                        </div>
+
+                        <div class="separator">&nbsp;</div>
+
+                        <div class="btn-container" onclick="endMeeting()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" transform="rotate(90)">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                    <g clip-path="url(#clip0)">
+                                        <path
+                                            d="M12.7071 -0.0208108L15.182 2.45406C15.5709 2.84297 15.5709 3.47937 15.182 3.86828C14.2981 4.75216 13.591 5.74211 13.0606 6.7957C12.8909 7.12097 12.5586 7.34017 12.1626 7.34017L9.05135 7.34017C8.06847 10.3595 8.07554 13.6334 9.05135 16.6598H12.1626C12.4384 16.6669 12.6859 16.773 12.8697 16.9568C12.9404 17.0275 13.0111 17.1124 13.0536 17.2114C13.5839 18.265 14.2981 19.262 15.1749 20.1388C15.5638 20.5277 15.5638 21.1641 15.1749 21.553L12.7071 24.0208C12.3182 24.4097 11.6818 24.4097 11.2929 24.0208C4.65315 17.3811 4.65315 6.61892 11.2929 -0.0208108C11.6818 -0.40972 12.3182 -0.40972 12.7071 -0.0208108Z"
+                                            fill="#d10000"></path>
+                                    </g>
+                                    <defs>
+                                        <clipPath id="clip0">
+                                            <rect width="24" height="24" fill="white"></rect>
+                                        </clipPath>
+                                    </defs>
+                                </g>
+                            </svg>
+                            Leave
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="members-space flex-container" id="members-space">
+                <!-- <div class="flex-item">
+                <div class="member-block" id="duga">
+                    <div class="member-profile-picture"> AE </div>
+                </div>
+                    <div class="member-name">
+                        Andrej Boblikov
+                        &nbsp;
+                        <svg height="15px" width="15px" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <style type="text/css"> .st0{fill:#ffffff;} </style> <g> <path class="st0" d="M436.418,244.958v-26.706h-35.395v26.706c-0.021,20.719-4.369,40.396-12.217,58.212l26.432,26.44 C428.735,304.384,436.403,275.558,436.418,244.958z"></path> <path class="st0" d="M336.135,244.958V80.124C336.121,35.926,300.209,0.014,256.003,0c-44.184,0.014-80.11,35.926-80.124,80.124 v10.119l160.068,160.076C336.063,248.544,336.135,246.769,336.135,244.958z"></path> <path class="st0" d="M393.815,361.087c0.202-0.237,0.431-0.453,0.633-0.69l-25.117-25.125c-0.194,0.244-0.431,0.46-0.626,0.704 l-46.311-46.318c0.18-0.259,0.396-0.489,0.568-0.755L175.88,141.843v1.301L84.608,51.873l-25.8,25.793L175.88,194.737v50.22 c0.014,44.184,35.94,80.096,80.124,80.11c14.423-0.007,27.928-3.888,39.627-10.579l46.692,46.692 c-24.169,18.01-53.914,28.776-86.319,28.776c-40.001,0-76.164-16.228-102.482-42.531c-26.303-26.318-42.531-62.466-42.531-102.468 v-26.706H75.597v26.706c0.028,91.494,68.438,167.033,156.828,178.675V512h47.188v-88.367c32.929-4.348,62.998-17.672,87.886-37.277 l59.901,59.901l25.793-25.793L393.815,361.087z"></path> </g> </g></svg>
+                    </div>
+            </div> -->
+            </div>
+
+            <div class="chat-space" id="chat-space">
+                <div class="menu-header-region">
+                    <div class="heading">
+                        <span class="menu-headers">Meeting Chat</span>
+                    </div>
+                    <div class="popup-close">
+                        <svg width="20" height="20" fill="#bfbfbf" viewBox="0 0 32 32" version="1.1"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                            <g id="SVGRepo_iconCarrier">
+                                <title>popout</title>
+                                <path
+                                    d="M15.694 13.541l2.666 2.665 5.016-5.017 2.59 2.59 0.004-7.734-7.785-0.046 2.526 2.525-5.017 5.017zM25.926 16.945l-1.92-1.947 0.035 9.007-16.015 0.009 0.016-15.973 8.958-0.040-2-2h-7c-1.104 0-2 0.896-2 2v16c0 1.104 0.896 2 2 2h16c1.104 0 2-0.896 2-2l-0.074-7.056z">
+                                </path>
+                            </g>
+                        </svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                            <g id="SVGRepo_iconCarrier">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M10.9393 12L6.9696 15.9697L8.03026 17.0304L12 13.0607L15.9697 17.0304L17.0304 15.9697L13.0607 12L17.0303 8.03039L15.9696 6.96973L12 10.9393L8.03038 6.96973L6.96972 8.03039L10.9393 12Z"
+                                    fill="#bfbfbf"></path>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="chat-gradient-overlay" id="chat-gradient-overlay"></div>
+                </div>
+
+                <div class="chat-app-container">
+                    <div class="chat-app" id="chat-app">
+                        <div class="chat-history-container" id="chat-history-container">
+                            <div class="chat-history" id="chat-history">
+                                <div class="meta-chat">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
+                                        </g>
+                                        <g id="SVGRepo_iconCarrier">
+                                            <path
+                                                d="M5.13641 12.764L8.15456 9.08664C8.46255 8.69065 8.61655 8.49264 8.69726 8.27058C8.76867 8.07409 8.79821 7.86484 8.784 7.65625C8.76793 7.42053 8.67477 7.18763 8.48846 6.72184L7.77776 4.9451C7.50204 4.25579 7.36417 3.91113 7.12635 3.68522C6.91678 3.48615 6.65417 3.35188 6.37009 3.29854C6.0477 3.238 5.68758 3.32804 4.96733 3.5081L3 4C3 14 9.99969 21 20 21L20.4916 19.0324C20.6717 18.3121 20.7617 17.952 20.7012 17.6296C20.6478 17.3456 20.5136 17.0829 20.3145 16.8734C20.0886 16.6355 19.7439 16.4977 19.0546 16.222L17.4691 15.5877C16.9377 15.3752 16.672 15.2689 16.4071 15.2608C16.1729 15.2536 15.9404 15.3013 15.728 15.4001C15.4877 15.512 15.2854 15.7143 14.8807 16.119L11.8274 19.1733M12.9997 7C13.9765 7.19057 14.8741 7.66826 15.5778 8.37194C16.2815 9.07561 16.7592 9.97326 16.9497 10.95M12.9997 3C15.029 3.22544 16.9213 4.13417 18.366 5.57701C19.8106 7.01984 20.7217 8.91101 20.9497 10.94"
+                                                stroke="#bfbfbf" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round"></path>
+                                        </g>
+                                    </svg>
+                                    You started the meeting
+                                </div>
+                                <!-- <div class="meta-chat"> Andrej Boblikov joined the chat </div> -->
+                                <!-- <div class="chat-parent">
+
+                                <div class="other-chat-meta-text-container">
+                                    <div class="meta-text meta-chat chat-justify-left">
+                                        Hemakumar, 07:21
+                                    </div>
+                                </div>
+                                <div class="chat-container">
+                                    <div class="other-chat-entry">
+                                        <div class="other-chat-color chat-msg chat-justify-left">
+                                            Hoy
+                                        </div>
+                                        <div class="chat-user">HR</div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="chat-parent">
+                                <div class="my-chat-meta-text-container">
+                                    <div class="meta-text meta-chat chat-justify-right">
+                                        07:21
+                                    </div>
+                                </div>
+                                <div class="chat-container">
+                                    <div class="my-chat-entry">
+                                        <div class="my-chat-color chat-msg chat-justify-right">
+                                            Hi
+                                        </div>
+                                        <div class="chat-status">
+                                            <svg width="10" height="10" fill="#464EB8" viewBox="0 0 24 24"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round"
+                                                    stroke-linejoin="round">
+                                                </g>
+                                                <g id="SVGRepo_iconCarrier">
+                                                    <path
+                                                        d="M12,1A11,11,0,1,0,23,12,11.013,11.013,0,0,0,12,1Zm0,20a9,9,0,1,1,9-9A9.011,9.011,0,0,1,12,21ZM17.737,8.824a1,1,0,0,1-.061,1.413l-6,5.5a1,1,0,0,1-1.383-.03l-3-3a1,1,0,0,1,1.415-1.414l2.323,2.323,5.294-4.853A1,1,0,0,1,17.737,8.824Z">
+                                                    </path>
+                                                </g>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> -->
+                            </div>
+
+
+                            <div id="newMsgAlert" onclick="scrollToLastChatMsg()"
+                                class="new-msg-notification-overlay hide">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
+                                    </g>
+                                    <g id="SVGRepo_iconCarrier">
+                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                            d="M12 3C12.5523 3 13 3.44772 13 4V17.5858L18.2929 12.2929C18.6834 11.9024 19.3166 11.9024 19.7071 12.2929C20.0976 12.6834 20.0976 13.3166 19.7071 13.7071L12.7071 20.7071C12.3166 21.0976 11.6834 21.0976 11.2929 20.7071L4.29289 13.7071C3.90237 13.3166 3.90237 12.6834 4.29289 12.2929C4.68342 11.9024 5.31658 11.9024 5.70711 12.2929L11 17.5858V4C11 3.44772 11.4477 3 12 3Z"
+                                            fill="#ffffff"></path>
+                                    </g>
+                                </svg>
+                                New messages
+                            </div>
+                        </div>
+                        <div class="chat-textbox-parent">
+                            <div class="chat-textbox-container">
+                                <div class="chat-textbox">
+                                    <input class="chat-textbox" type="text" name="" id="my-chat-input"
+                                        placeholder="Type a message">
+                                </div>
+                            </div>
+                            <div class="chat-controls"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://unpkg.com/feather-icons"></script>
+</body>
+
+</html>
